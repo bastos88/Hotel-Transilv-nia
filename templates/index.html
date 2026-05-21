@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://googleapis.com" />
+    <link rel="preconnect" href="https://gstatic.com" crossorigin />
+    <link
+      href="https://googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='Src/Style/styles.css') }}"
+    />
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <title>Hotel Transilvânia</title>
+  </head>
+  <body>
+    <header class="hero-container">
+      <nav class="navbar">
+        <div class="logo">
+          <a href="#"
+            ><img
+              src="{{ url_for('static', filename='Src/Images/Logo.png') }}"
+              alt="Logo"
+              onerror="
+                this.src = 'https://via.placeholder.com/80x80?text=Hotel'
+              "
+          /></a>
+        </div>
+        <ul class="navlinks">
+          <li><a href="#overview">Geral</a></li>
+          <li><a href="#cadastro-quarto">Hotéis & Quartos</a></li>
+          <li><a href="#clientes">Clientes</a></li>
+          <li><a href="#reservas">Reservas</a></li>
+          <li><a href="#consultas">Relatórios SQL</a></li>
+        </ul>
+      </nav>
+
+      <section id="hero-content">
+        <h1>Pela Hospitalidade e Conforto</h1>
+        <p>
+          Desfrute de acomodações exclusivas, gastronomia requintada e <br />
+          um serviço personalizado no coração da cidade.
+        </p>
+        <a href="#reservas" class="btn">Criar Nova Reserva</a>
+      </section>
+    </header>
+
+    <section id="overview" class="stats-grid">
+      <div class="card">
+        <h3>Hotéis Cadastrados</h3>
+        <p id="total-hoteis">-</p>
+      </div>
+      <div class="card">
+        <h3>Total Quartos</h3>
+        <p id="total-quartos">-</p>
+      </div>
+      <div class="card">
+        <h3>Clientes Ativos</h3>
+        <p id="total-clientes">-</p>
+      </div>
+      <div class="card">
+        <h3>Faturação Total</h3>
+        <p id="total-faturado">-</p>
+      </div>
+    </section>
+
+    <section
+      id="cadastro-cliente"
+      style="max-width: 600px; margin: 40px auto; padding: 0 20px"
+    >
+      <h2>Cadastrar Novo Cliente</h2>
+      <div class="form-reserva">
+        <form id="form-cliente">
+          <div class="form-group">
+            <label for="nome_cliente">Nome do Cliente:</label>
+            <input
+              type="text"
+              id="nome_cliente_cadastro"
+              name="nome"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="tipo_cliente">Tipo:</label>
+            <select id="tipo_cliente" name="tipo" required>
+              <option value="individual">Individual</option>
+              <option value="organizacao">Organização</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="documento"
+              >NIF (Individual) / NIPC (Organização):</label
+            >
+            <input type="text" id="documento" name="documento" />
+          </div>
+          <button type="submit">Cadastrar Cliente</button>
+        </form>
+        <div
+          id="mensagem-cliente"
+          class="mensagem"
+          style="display: none; margin-top: 20px"
+        ></div>
+      </div>
+    </section>
+    <section id="cadastro-quarto">
+      <div>
+        <h2>Registar Novo Quarto</h2>
+        <form id="form-quarto">
+          <div class="form-group">
+            <label for="sigla">Sigla do Hotel:</label>
+            <select id="sigla" name="sigla" required>
+              <option value="SH">Sheraton (SH)</option>
+              <option value="AL">Alfa (AL)</option>
+              <option value="MN">Mundial (MN)</option>
+              <option value="RM">Roma (RM)</option>
+              <option value="MJ">Majestic (MJ)</option>
+              <option value="LS">Lisboa (LS)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="num_quartos">Número do Quarto:</label>
+            <input
+              type="number"
+              id="num_quartos"
+              name="num_quartos"
+              min="1"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="num_camas">Número de Camas:</label>
+            <input
+              type="number"
+              id="num_camas"
+              name="num_camas"
+              min="1"
+              max="5"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="preco">Preço por Noite (€):</label>
+            <input
+              type="number"
+              step="0.01"
+              id="preco"
+              name="preco"
+              min="0"
+              required
+            />
+          </div>
+
+          <button type="submit">Gravar Quarto</button>
+        </form>
+        <div id="mensagem-quarto" class="mensagem" style="display: none"></div>
+      </div>
+    </section>
+
+    <section id="clientes">
+      <h2>Lista de Clientes</h2>
+      <table id="tabela-clientes">
+        <thead>
+          <tr>
+            <th>Nº Cliente</th>
+            <th>Nome / Organização</th>
+            <th>Tipo</th>
+            <th>NIF / NIPC</th>
+          </tr>
+        </thead>
+        <tbody id="clientes-body">
+          <tr>
+            <td colspan="4" style="text-align: center">Carregando...</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="reservas">
+      <h2>Criar Nova Reserva</h2>
+      <div class="form-reserva">
+        <form id="form-reserva">
+          <div class="form-group">
+            <label for="nome_cliente">Nome do Cliente:</label>
+            <input
+              type="text"
+              id="nome_cliente"
+              name="nome_cliente"
+              required
+              placeholder="Ex: Ana, ISCTE, Pedro..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="sigla_hotel">Hotel:</label>
+            <select id="sigla_hotel" name="sigla_hotel" required>
+              <option value="SH">Sheraton (SH)</option>
+              <option value="AL">Alfa (AL)</option>
+              <option value="MN">Mundial (MN)</option>
+              <option value="RM">Roma (RM)</option>
+              <option value="MJ">Majestic (MJ)</option>
+              <option value="LS">Lisboa (LS)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="numero_quarto">Número do Quarto:</label>
+            <input
+              type="number"
+              id="numero_quarto"
+              name="numero_quarto"
+              required
+              placeholder="Ex: 1, 2, 3..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="checkin">Data de Check-in:</label>
+            <input type="date" id="checkin" name="checkin" required />
+          </div>
+
+          <div class="form-group">
+            <label for="checkout">Data de Check-out:</label>
+            <input type="date" id="checkout" name="checkout" required />
+          </div>
+
+          <div class="form-group">
+            <label for="num_pessoas">Número de Pessoas:</label>
+            <input
+              type="number"
+              id="num_pessoas"
+              name="num_pessoas"
+              min="1"
+              required
+            />
+          </div>
+
+          <button type="submit">Criar Reserva</button>
+        </form>
+        <div
+          id="mensagem-reserva"
+          class="mensagem"
+          style="display: none; margin-top: 20px"
+        ></div>
+      </div>
+    </section>
+
+    <section id="consultas">
+      <h2>Consultas Analíticas (Métricas SQL)</h2>
+
+      <div class="report-box">
+        <h3>🏨 Hotéis com maior número de quartos livres</h3>
+        <ul id="quartos-livres-list">
+          <li>Carregando...</li>
+        </ul>
+      </div>
+
+      <div class="report-box">
+        <h3>📊 Número de quartos por hotel</h3>
+        <ul id="quartos-por-hotel-list">
+          <li>Carregando...</li>
+        </ul>
+      </div>
+
+      <div class="report-box">
+        <h3>💰 Faturação por hotel</h3>
+        <ul id="faturacao-hoteis-list">
+          <li>Carregando...</li>
+        </ul>
+      </div>
+
+      <div class="report-box">
+        <h3>👥 Clientes individuais com reservas</h3>
+        <ul id="clientes-reservas-list">
+          <li>Carregando...</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <div class="footer-container">
+        <div class="footer-info">
+          <h3>🏨 HotelTransilvânia Admin</h3>
+          <p>
+            Sistema integrado de gestão de alojamento e faturação para hotéis,
+            clientes individuais e corporativos.
+          </p>
+        </div>
+
+        <div class="footer-links">
+          <h4>Acesso Rápido</h4>
+          <ul>
+            <li><a href="#overview">Painel Geral</a></li>
+            <li><a href="#clientes">Gestão de Clientes</a></li>
+            <li><a href="#consultas">Relatórios SQL</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-status">
+          <h4>Estado do Servidor</h4>
+          <p>
+            <span class="status-dot connected"></span> BD Hotel ligada via
+            Python/Flask
+          </p>
+          <p><small>Versão do Modelo: 1.0.0</small></p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 HotelTransilvânia. Todos os direitos reservados.</p>
+        <p><small>Baseado no exercício de Banco de Dados</small></p>
+      </div>
+    </footer>
+  </body>
+</html>
