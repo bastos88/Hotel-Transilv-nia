@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Transilvânia - Admin Dashboard</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #F5F2EF;
+      color: #1C1B1A;
+    }
+
+    body.dark-mode {
+      background: #0a0908;
+      color: #e8e4df;
+    }
+
+    body.dark-mode .header,
+    body.dark-mode .stat-card,
+    body.dark-mode .form-card,
+    body.dark-mode .section-card,
+    body.dark-mode .report-card {
+      background: #1f1d1c;
+    }
+
+    body.dark-mode .nav {
+      background: #0D0D0D;
+    }
+
+    body.dark-mode .site-btn {
+      color: #cfb87c !important;
+      border-color: #cfb87c !important;
+    }
+
+    .header {
+      background: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+
+    .header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+    }
+
+    .header h1 span {
+      color: #C6A43F;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .theme-toggle,
+    .refresh-btn,
+    .site-btn {
+      background: none;
+      border: 1px solid #C6A43F;
+      color: #C6A43F;
+      border-radius: 40px;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s;
+      text-decoration: none;
+      font-size: 0.75rem;
+    }
+
+    .theme-toggle:hover,
+    .refresh-btn:hover,
+    .site-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(198, 164, 63, 0.1);
+    }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid #c0392b;
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      color: #c0392b;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #c0392b;
+      color: white;
+    }
+
+    .nav {
+      background: #0D0D0D;
+      padding: 0.5rem 2rem;
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      color: #C6A43F;
+      border-bottom: 2px solid #C6A43F;
+    }
+
+    .container {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1rem;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: #8A8783;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .stat-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #C6A43F;
+    }
+
+    .forms-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 20px;
+    }
+
+    .form-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.7rem;
+      color: #8A8783;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.5rem 0;
+      border: none;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      background: transparent;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-bottom-color: #C6A43F;
+    }
+
+    .btn {
+      background: #C6A43F;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      border-radius: 40px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      background: #D4B550;
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 1px solid #c0392b;
+      color: #c0392b;
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+      color: white;
+    }
+
+    .section-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .section-header h3 {
+      font-size: 1.2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 0.75rem 0.5rem 0.75rem 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    th {
+      font-size: 0.7rem;
+      color: #8A8783;
+      text-transform: uppercase;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      color: #c0392b;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+
+    .action-btn:hover {
+      background: rgba(192, 57, 43, 0.1);
+      transform: scale(1.05);
+    }
+
+    .reports-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .report-card {
+      background: #F9F8F6;
+      border-radius: 16px;
+      padding: 1rem;
+    }
+
+    .report-card h4 {
+      font-family: 'Cormorant Garamond', serif;
+      margin-bottom: 1rem;
+    }
+
+    .report-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      background: #2C7A4D;
+      color: white;
+      border-radius: 12px;
+      display: none;
+      animation: slideIn 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.error {
+      background: #c0392b;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #8A8783;
+    }
+
+    .fa-spin {
+      animation: fa-spin 2s infinite linear;
+    }
+
+    @keyframes fa-spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .forms-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .reports-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .user-info {
+        justify-content: flex-end;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>HOTEL<span>TRANSILVÂNIA</span></h1>
+    <div class="user-info">
+      <button class="theme-toggle" id="themeToggleBtn">
+        <i class="fas fa-moon"></i>
+        <span>Modo Escuro</span>
+      </button>
+      <button class="refresh-btn" id="refreshBtn">
+        <i class="fas fa-sync-alt"></i>
+        <span>Atualizar</span>
+      </button>
+      <a href="/site" class="site-btn">
+        <i class="fas fa-globe"></i>
+        <span>Site Público</span>
+      </a>
+      <span>👤 <span id="usernameDisplay">Admin</span></span>
+      <button class="logout-btn" id="logoutBtn">Sair</button>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="nav-btn active" data-tab="dashboard">📊 Dashboard</button>
+    <button class="nav-btn" data-tab="reservations">📅 Reservas</button>
+    <button class="nav-btn" data-tab="clients">👥 Clientes</button>
+    <button class="nav-btn" data-tab="reports">📈 Relatórios</button>
+  </div>
+  <div class="container">
+    <div id="dashboardTab">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Hotéis</div>
+          <div class="stat-value" id="totalHoteis">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Quartos</div>
+          <div class="stat-value" id="totalQuartos">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Clientes</div>
+          <div class="stat-value" id="totalClientes">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Reservas</div>
+          <div class="stat-value" id="totalReservas">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Faturação</div>
+          <div class="stat-value" id="totalFaturado">-</div>
+        </div>
+      </div>
+      <div class="forms-grid">
+        <div class="form-card">
+          <h3>➕ Adicionar Quarto</h3>
+          <form id="formQuarto">
+            <div class="form-group"><label>Hotel</label><select id="quartoHotel">
+                <option value="SH">Sheraton</option>
+                <option value="AL">Alfa</option>
+                <option value="MN">Mundial</option>
+                <option value="RM">Roma</option>
+                <option value="MJ">Majestic</option>
+                <option value="LS">Lisboa</option>
+              </select></div>
+            <div class="form-group"><label>Número</label><input type="number" id="quartoNumero" required></div>
+            <div class="form-group"><label>Camas</label><input type="number" id="quartoCamas" required></div>
+            <div class="form-group"><label>Preço (€)</label><input type="number" step="0.01" id="quartoPreco" required>
+            </div>
+            <button type="submit" class="btn">Criar Quarto</button>
+          </form>
+        </div>
+        <div class="form-card">
+          <h3>➕ Novo Cliente</h3>
+          <form id="formCliente">
+            <div class="form-group"><label>Nome</label><input type="text" id="clienteNome" required></div>
+            <div class="form-group"><label>Tipo</label><select id="clienteTipo">
+                <option>individual</option>
+                <option>organizacao</option>
+              </select></div>
+            <div class="form-group"><label>Documento</label><input type="text" id="clienteDocumento" required></div>
+            <button type="submit" class="btn">Registrar Cliente</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="reservationsTab" style="display: none;">
+      <div class="section-card">
+        <div class="section-header">
+          <h3>📅 Reservas</h3>
+          <button class="btn-danger" id="btnDeleteAllReservas">🗑️ Limpar Todas</button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Valor (€)</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="reservasBody">
+            <tr>
+              <td colspan="6" class="loading">Carregando...<\ /td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="clientsTab" style="display: none;">
+      <div class="section-card">
+        <div class="section-header">
+          <h3>👥 Clientes</h3>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Tipo</th>
+              <th>Documento</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="clientesBody">
+            <tr>
+              <td colspan="5" class="loading">Carregando...<\ /td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="reportsTab" style="display: none;">
+      <div class="reports-grid">
+        <div class="report-card">
+          <h4>🏨 Quartos por Hotel</h4>
+          <div id="roomsByHotel"></div>
+        </div>
+        <div class="report-card">
+          <h4>💰 Faturação por Hotel</h4>
+          <div id="revenueByHotel"></div>
+        </div>
+        <div class="report-card">
+          <h4>📊 Taxa de Ocupação</h4>
+          <div id="availableRooms"></div>
+        </div>
+      </div>
+
+      <div class="reports-grid" style="margin-top: 1rem;">
+        <div class="report-card">
+          <h4>🏨 Ocupação Detalhada por Hotel</h4>
+          <div id="ocupacaoDetalhada"></div>
+        </div>
+        <div class="report-card">
+          <h4>📊 Status dos Hotéis</h4>
+          <div id="statusHoteis"></div>
+        </div>
+        <div class="report-card">
+          <h4>⚠️ Alertas de Ocupação</h4>
+          <div id="alertasOcupacao"></div>
+        </div>
+      </div>
+
+      <div class="reports-grid" style="margin-top: 1rem;">
+        <div class="report-card">
+          <h4>🏆 Top Clientes</h4>
+          <div id="topClientes"></div>
+        </div>
+        <div class="report-card">
+          <h4>📈 Estatísticas POO</h4>
+          <div id="pooStats"></div>
+        </div>
+        <div class="report-card">
+          <h4>🏨 Hotéis</h4>
+          <div id="hotelStats"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="toast" class="toast"></div>
+
+  <script>
+    (function () {
+      // Modo Escuro
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') document.body.classList.add('dark-mode');
+
+      function updateThemeButton() {
+        const isDark = document.body.classList.contains('dark-mode');
+        const themeBtn = document.getElementById('themeToggleBtn');
+        if (themeBtn) {
+          themeBtn.querySelector('i').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+          themeBtn.querySelector('span').textContent = isDark ? 'Modo Claro' : 'Modo Escuro';
+        }
+      }
+      document.getElementById('themeToggleBtn')?.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        updateThemeButton();
+        showToast(document.body.classList.contains('dark-mode') ? '🌙 Modo escuro ativado' : '☀️ Modo claro ativado');
+      });
+      updateThemeButton();
+
+      function showToast(msg, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = isError ? 'toast error' : 'toast';
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 3000);
+      }
+
+      async function apiFetch(endpoint, options = {}) {
+        try {
+          const response = await fetch(endpoint, { ...options, credentials: 'include', headers: { 'Content-Type': 'application/json' } });
+          if (response.status === 401) { window.location.href = '/'; throw new Error('Unauthorized'); }
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        } catch (error) { console.error(`Erro em ${endpoint}:`, error); throw error; }
+      }
+
+      async function loadStats() {
+        try {
+          const data = await apiFetch('/api/stats');
+          document.getElementById('totalHoteis').textContent = data.hoteis || 0;
+          document.getElementById('totalQuartos').textContent = data.quartos || 0;
+          document.getElementById('totalClientes').textContent = data.clientes || 0;
+          document.getElementById('totalReservas').textContent = data.reservas || 0;
+          document.getElementById('totalFaturado').textContent = (data.faturacao || 0).toLocaleString() + '€';
+          return data;
+        } catch (error) { return null; }
+      }
+
+      async function loadReservas() {
+        try {
+          const data = await apiFetch('/api/reservas');
+          const tbody = document.getElementById('reservasBody');
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem;">Nenhuma reserva encontrada<\/td></td>';
+            return;
+          }
+          tbody.innerHTML = data.map(r => `
+            <tr>
+              <td>${r.num_reserva || '-'}<\/td>
+              <td>${r.cliente_nome || '-'}<\/td>
+              <td>${r.dia_entrada || '-'}<\/td>
+              <td>${r.dia_saida || '-'}<\/td>
+              <td><strong>€${(r.valor_total || 0).toLocaleString()}</strong><\/td>
+              <td><button class="action-btn" onclick="window.excluirReserva(${r.num_reserva})"><i class="fas fa-trash-alt"><\/i><\/button><\/td>
+            </tr>
+          `).join('');
+          return data;
+        } catch (error) { return null; }
+      }
+
+      async function loadClientes() {
+        try {
+          const data = await apiFetch('/api/clientes');
+          console.log('Clientes recebidos:', data);
+          const tbody = document.getElementById('clientesBody');
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem;">Nenhum cliente encontrado<\/td></td>';
+            return;
+          }
+          tbody.innerHTML = data.map(c => `
+            <tr>
+              <td>${c.num_cliente || '-'}<\/td>
+              <td>${c.nome || '-'}<\/td>
+              <td>${c.tipo || '-'}<\/td>
+              <td>${c.documento || '-'}<\/td>
+              <td><button class="action-btn" onclick="window.excluirCliente(${c.num_cliente}, '${(c.nome || '').replace(/'/g, "\\'")}')" title="Excluir cliente"><i class="fas fa-trash-alt"><\/i><\/button><\/td>
+            </tr>
+          `).join('');
+          return data;
+        } catch (error) {
+          console.error('Erro ao carregar clientes:', error);
+          const tbody = document.getElementById('clientesBody');
+          if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem; color: #e74c3c;">❌ Erro ao carregar clientes<\/td></tr>';
+          }
+          return null;
+        }
+      }
+
+      async function loadOcupacaoDetalhada() {
+        try {
+          const ocupacao = await apiFetch('/api/ocupacao-hoteis');
+          const ocupacaoDiv = document.getElementById('ocupacaoDetalhada');
+          const statusDiv = document.getElementById('statusHoteis');
+          const alertasDiv = document.getElementById('alertasOcupacao');
+
+          if (!ocupacaoDiv) return;
+
+          let ocupacaoHtml = '';
+          let statusHtml = '';
+          let alertasHtml = '';
+          let totalQuartos = 0;
+          let totalOcupados = 0;
+
+          for (const hotel of ocupacao) {
+            const quartosLivres = hotel.total_quartos - hotel.quartos_ocupados;
+            const percentual = hotel.taxa_ocupacao;
+
+            totalQuartos += hotel.total_quartos;
+            totalOcupados += hotel.quartos_ocupados;
+
+            let statusIcon = '';
+            let corBarra = '';
+            let alertaMsg = '';
+
+            if (percentual >= 100) {
+              statusIcon = '🔴';
+              corBarra = '#e74c3c';
+              alertaMsg = `🚨 ${hotel.designacao} está COMPLETAMENTE LOTADO!`;
+            } else if (percentual >= 80) {
+              statusIcon = '🟡';
+              corBarra = '#f39c12';
+              alertaMsg = `⚠️ ${hotel.designacao} está com ${percentual}% de ocupação. Poucos quartos disponíveis!`;
+            } else if (percentual >= 50) {
+              statusIcon = '🟢';
+              corBarra = '#22c55e';
+            } else {
+              statusIcon = '🟢';
+              corBarra = '#22c55e';
+            }
+
+            ocupacaoHtml += `
+              <div class="report-item">
+                <span><strong>${hotel.designacao}</strong></span>
+                <span>${statusIcon} ${percentual}%</span>
+              </div>
+              <div class="report-item">
+                <span>🛏️ Livres / Total</span>
+                <span><strong style="color: #22c55e;">${quartosLivres}</strong> / ${hotel.total_quartos}</span>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" style="width: ${percentual}%; background: ${corBarra};"></div>
+              </div>
+            `;
+
+            statusHtml += `
+              <div class="report-item">
+                <span>${hotel.designacao}</span>
+                <span>${statusIcon} ${percentual}%</span>
+              </div>
+            `;
+
+            if (alertaMsg) {
+              alertasHtml += `<div class="report-item" style="color: ${percentual >= 100 ? '#e74c3c' : '#f39c12'};">${alertaMsg}</div>`;
+            }
+          }
+
+          const ocupacaoGlobal = totalQuartos > 0 ? Math.round((totalOcupados / totalQuartos) * 100) : 0;
+          let corGlobal = ocupacaoGlobal >= 80 ? '#e74c3c' : (ocupacaoGlobal >= 50 ? '#f39c12' : '#22c55e');
+
+          ocupacaoHtml = `
+            <div class="report-item" style="background: rgba(0,0,0,0.05); margin-bottom: 0.5rem; padding: 0.5rem; border-radius: 8px;">
+              <span><strong>🌍 OCUPAÇÃO GLOBAL</strong></span>
+              <span><strong>${ocupacaoGlobal}%</strong></span>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width: ${ocupacaoGlobal}%; background: ${corGlobal};"></div>
+            </div>
+            ${ocupacaoHtml}
+          `;
+
+          if (alertasHtml === '') {
+            alertasHtml = '<div class="report-item">✅ Todos os hotéis com disponibilidade normal</div>';
+          }
+
+          ocupacaoDiv.innerHTML = ocupacaoHtml;
+          statusDiv.innerHTML = statusHtml;
+          alertasDiv.innerHTML = alertasHtml;
+
+        } catch (error) {
+          console.error('Erro ao carregar ocupação detalhada:', error);
+        }
+      }
+
+      async function loadReports() {
+        try {
+          const [rooms, revenue, ocupacao, topClientes, pooRelatorio, hotelStats] = await Promise.all([
+            apiFetch('/api/hoteis-quartos'),
+            apiFetch('/api/faturacao-hoteis'),
+            apiFetch('/api/ocupacao-hoteis'),
+            apiFetch('/api/clientes-top'),
+            apiFetch('/api/poo/relatorio-completo'),
+            apiFetch('/api/hoteis-completos')
+          ]);
+
+          document.getElementById('roomsByHotel').innerHTML = rooms?.length ? rooms.map(h => `<div class="report-item"><span>${h.designacao}</span><span><strong>${h.numero_quartos}</strong> quartos</span></div>`).join('') : '<div class="loading">Sem dados</div>';
+          document.getElementById('revenueByHotel').innerHTML = revenue?.length ? revenue.map(h => `<div class="report-item"><span>${h.designacao}</span><span><strong>€${(h.faturacao_total || 0).toLocaleString()}</strong></span></div>`).join('') : '<div class="loading">Sem dados</div>';
+          document.getElementById('availableRooms').innerHTML = ocupacao?.length ? ocupacao.map(h => `<div class="report-item"><span>${h.designacao}</span><span><strong>${h.taxa_ocupacao || 0}%</strong> ocupado</span></div>`).join('') : '<div class="loading">Sem dados</div>';
+          document.getElementById('topClientes').innerHTML = topClientes?.length ? topClientes.map(c => `<div class="report-item"><span>${c.nome}</span><span><strong>${c.total_reservas}</strong> reservas | €${(c.total_gasto || 0).toLocaleString()}</span></div>`).join('') : '<div class="loading">Sem dados</div>';
+          document.getElementById('pooStats').innerHTML = pooRelatorio ? `
+            <div class="report-item"><span>🏆 Hotel + Faturação</span><span><strong>${pooRelatorio.hotel_maior_faturacao?.nome || '-'}</strong> (€${(pooRelatorio.hotel_maior_faturacao?.faturacao || 0).toLocaleString()})</span></div>
+            <div class="report-item"><span>🏨 Total de Hotéis</span><span><strong>${pooRelatorio.total_hoteis || 0}</strong></span></div>
+            <div class="report-item"><span>👥 Org. em todos hotéis</span><span><strong>${pooRelatorio.organizacoes_todos_hoteis?.length || 0}</strong></span></div>
+          ` : '<div class="loading">Sem dados</div>';
+          document.getElementById('hotelStats').innerHTML = hotelStats?.length ? hotelStats.map(h => `<div class="report-item"><span>${h.designacao}</span><span><strong>${h.total_reservas || 0}</strong> reservas | €${(h.faturacao_total || 0).toLocaleString()}</span></div>`).join('') : '<div class="loading">Sem dados</div>';
+
+          await loadOcupacaoDetalhada();
+
+        } catch (error) { console.error('Erro ao carregar relatórios:', error); }
+      }
+
+      async function refreshAll() {
+        showToast('🔄 Atualizando dados...');
+        try {
+          await Promise.all([
+            loadStats(),
+            loadReservas(),
+            loadClientes(),
+            loadReports(),
+            loadOcupacaoDetalhada()
+          ]);
+          showToast('✅ Dados atualizados!');
+        } catch (error) {
+          console.error('Erro ao atualizar:', error);
+          showToast('❌ Erro ao atualizar dados', true);
+        }
+      }
+
+      window.excluirCliente = async (id, nome) => {
+        if (confirm(`⚠️ Excluir cliente "${nome}" e todas suas reservas?`)) {
+          const result = await apiFetch(`/api/admin/delete-cliente/${id}`, { method: 'DELETE' });
+          if (result.success) { showToast(result.message); await refreshAll(); }
+          else showToast(result.error, true);
+        }
+      };
+
+      window.excluirReserva = async (id) => {
+        if (confirm(`⚠️ Excluir reserva #${id}?`)) {
+          const result = await apiFetch(`/api/admin/delete-reserva/${id}`, { method: 'DELETE' });
+          if (result.success) { showToast(result.message); await refreshAll(); }
+          else showToast(result.error, true);
+        }
+      };
+
+      document.getElementById('btnDeleteAllReservas')?.addEventListener('click', async () => {
+        if (confirm("⚠️ Apagar TODAS as reservas?")) {
+          const result = await apiFetch('/api/admin/delete-all-reservas', { method: 'DELETE' });
+          if (result.success) { showToast(result.message); await refreshAll(); }
+          else showToast(result.error, true);
+        }
+      });
+
+      document.getElementById('formQuarto')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        btn.disabled = true; btn.textContent = '⏳ Processando...';
+        const result = await apiFetch('/api/admin/add-quarto', {
+          method: 'POST',
+          body: JSON.stringify({
+            sigla: document.getElementById('quartoHotel').value,
+            numero: parseInt(document.getElementById('quartoNumero').value),
+            num_camas: parseInt(document.getElementById('quartoCamas').value),
+            preco: parseFloat(document.getElementById('quartoPreco').value)
+          })
+        });
+        if (result.success) { showToast(result.message); e.target.reset(); await refreshAll(); }
+        else showToast(result.error, true);
+        btn.disabled = false; btn.textContent = 'Criar Quarto';
+      });
+
+      document.getElementById('formCliente')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        btn.disabled = true; btn.textContent = '⏳ Processando...';
+        const result = await apiFetch('/api/admin/add-cliente', {
+          method: 'POST',
+          body: JSON.stringify({
+            nome: document.getElementById('clienteNome').value,
+            tipo: document.getElementById('clienteTipo').value,
+            documento: document.getElementById('clienteDocumento').value
+          })
+        });
+        if (result.success) { showToast(result.message); e.target.reset(); await refreshAll(); }
+        else showToast(result.error, true);
+        btn.disabled = false; btn.textContent = 'Registrar Cliente';
+      });
+
+      document.getElementById('refreshBtn')?.addEventListener('click', async () => {
+        const icon = document.getElementById('refreshBtn')?.querySelector('i');
+        if (icon) icon.classList.add('fa-spin');
+        await refreshAll();
+        if (icon) setTimeout(() => icon.classList.remove('fa-spin'), 500);
+      });
+
+      document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+        await fetch('/logout', { method: 'POST', credentials: 'include' });
+        window.location.href = '/';
+      });
+
+      function switchTab(tab) {
+        document.getElementById('dashboardTab').style.display = tab === 'dashboard' ? 'block' : 'none';
+        document.getElementById('reservationsTab').style.display = tab === 'reservations' ? 'block' : 'none';
+        document.getElementById('clientsTab').style.display = tab === 'clients' ? 'block' : 'none';
+        document.getElementById('reportsTab').style.display = tab === 'reports' ? 'block' : 'none';
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+        if (tab === 'reports') {
+          loadReports();
+          loadOcupacaoDetalhada();
+        }
+        if (tab === 'clients') loadClientes();
+        if (tab === 'reservations') loadReservas();
+      }
+
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+
+      document.getElementById('usernameDisplay').textContent =
+        document.cookie.split(';').find(c => c.trim().startsWith('username='))?.split('=')[1] || 'Admin';
+
+      refreshAll();
+    })();
+  </script>
+</body>
+
+</html>

@@ -470,9 +470,7 @@
                 margin-top: 20px;
             }
         }
-        /* ============================================
-   FORMULÁRIO DE CADASTRO DE CLIENTE
-   ============================================ */
+
 
 #cadastro-cliente {
     width: 60%;
@@ -661,7 +659,7 @@
     }
 }
 
-/* Estilo para grupo de campos lado a lado (opcional) */
+
 #cadastro-cliente .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;

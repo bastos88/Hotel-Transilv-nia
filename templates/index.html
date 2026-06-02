@@ -1,322 +1,1268 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://googleapis.com" />
-    <link rel="preconnect" href="https://gstatic.com" crossorigin />
-    <link
-      href="https://googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='Src/Style/styles.css') }}"
-    />
+<!DOCTYPE html>
+<html lang="pt">
 
-    <!-- JavaScript -->
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
-    <title>Hotel Transilvânia</title>
-  </head>
-  <body>
-    <header class="hero-container">
-      <nav class="navbar">
-        <div class="logo">
-          <a href="#"
-            ><img
-              src="{{ url_for('static', filename='Src/Images/Logo.png') }}"
-              alt="Logo"
-              onerror="
-                this.src = 'https://via.placeholder.com/80x80?text=Hotel'
-              "
-          /></a>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Transilvânia | Private Estate & Sanctuary</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #0a0908;
+      --bg-deep: #1a1817;
+      --surface-dark: #1f1d1c;
+      --text-primary: #e8e4df;
+      --text-secondary: #b8b2ab;
+      --text-tertiary: #8a847e;
+      --accent-gold: #cfb87c;
+      --accent-gold-light: #d4b550;
+      --border-light: rgba(232, 228, 223, 0.08);
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 5%;
+      z-index: 1000;
+      background: transparent;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .navbar.scrolled {
+      background: rgba(10, 9, 8, 0.85);
+      backdrop-filter: blur(20px);
+      padding: 1rem 5%;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .logo {
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .logo span {
+      font-weight: 300;
+      color: var(--accent-gold);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: all 0.4s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent-gold);
+      transform: translateY(-2px);
+    }
+
+    .menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.8rem;
+      cursor: pointer;
+    }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .hero-bg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      animation: zoomSlow 20s ease-out forwards;
+    }
+
+    @keyframes zoomSlow {
+      0% {
+        transform: scale(1.02);
+      }
+
+      100% {
+        transform: scale(1.08);
+      }
+    }
+
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.4) 100%);
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 900px;
+      padding: 0 2rem;
+      opacity: 0;
+      animation: fadeInUp 1.2s cubic-bezier(0.25, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(40px);
+        filter: blur(8px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    .hero-eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: var(--accent-gold);
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(2.5rem, 8vw, 5.5rem);
+      font-weight: 500;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title span {
+      color: var(--accent-gold);
+    }
+
+    .hero-description {
+      font-size: 1rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 550px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .btn {
+      display: inline-block;
+      background: transparent;
+      border: 1px solid var(--accent-gold);
+      color: var(--text-primary);
+      padding: 1rem 2.5rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.4s;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      background: var(--accent-gold);
+      color: var(--bg-dark);
+    }
+
+    .btn-primary {
+      background: var(--accent-gold);
+      color: var(--bg-dark);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-gold-light);
+    }
+
+    /* Booking Widget */
+    .booking-widget {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 2rem;
+      margin-top: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .booking-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .booking-field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .booking-field label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent-gold);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .booking-field input,
+    .booking-field select,
+    .booking-field textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      font-size: 0.9rem;
+      color: white;
+      transition: all 0.3s;
+      font-family: var(--font-sans);
+    }
+
+    .booking-field input:focus,
+    .booking-field select:focus,
+    .booking-field textarea:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .booking-field input::placeholder,
+    .booking-field textarea::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .booking-field textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .booking-btn {
+      background: var(--accent-gold);
+      border: none;
+      border-radius: 12px;
+      padding: 0.9rem 2rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      color: var(--bg-dark);
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      margin-top: auto;
+    }
+
+    .booking-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      background: var(--accent-gold-light);
+      box-shadow: 0 0 20px rgba(207, 184, 124, 0.3);
+    }
+
+    .booking-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Messages */
+    .success-message,
+    .error-message {
+      padding: 1rem;
+      border-radius: 12px;
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .success-message {
+      background: rgba(46, 204, 113, 0.15);
+      border: 1px solid rgba(46, 204, 113, 0.3);
+      color: #2ecc71;
+    }
+
+    .error-message {
+      background: rgba(231, 76, 60, 0.15);
+      border: 1px solid rgba(231, 76, 60, 0.3);
+      color: #e74c3c;
+    }
+
+    /* Sections */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 5%;
+    }
+
+    section {
+      padding: 6rem 0;
+    }
+
+    .section-dark {
+      background: var(--bg-deep);
+    }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: 2.5rem;
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-tertiary);
+      margin-bottom: 3rem;
+      font-size: 0.9rem;
+    }
+
+    /* Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      text-align: center;
+    }
+
+    .card {
+      background: transparent;
+      overflow: hidden;
+      transition: all 0.4s;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 350px;
+      object-fit: cover;
+      transition: transform 0.7s;
+    }
+
+    .card:hover .card-image {
+      transform: scale(1.02);
+    }
+
+    .card-content {
+      padding: 1.5rem 0 0;
+    }
+
+    .card-category {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: var(--accent-gold);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-number {
+      font-family: var(--font-serif);
+      font-size: 3rem;
+      font-weight: 500;
+      color: var(--accent-gold);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+      margin-top: 0.5rem;
+    }
+
+    /* Gallery */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.25rem;
+    }
+
+    .gallery-item {
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 350px;
+      object-fit: cover;
+      transition: transform 0.7s;
+    }
+
+    .gallery-item:hover img {
+      transform: scale(1.02);
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--bg-deep);
+      border-top: 1px solid var(--border-light);
+      padding: 3rem 0;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .social-links a {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      transition: all 0.4s;
+    }
+
+    .social-links a:hover {
+      color: var(--accent-gold);
+      transform: translateY(-3px);
+    }
+
+    /* Modal Login */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--surface-dark);
+      padding: 2.5rem;
+      max-width: 450px;
+      width: 90%;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+    }
+
+    .modal-content h2 {
+      font-family: var(--font-serif);
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.8rem 0;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-bottom-color: var(--accent-gold);
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 2rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.3s;
+    }
+
+    .close-modal:hover {
+      color: var(--accent-gold);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .booking-form {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .menu-btn {
+        display: block;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        height: 100vh;
+        background: var(--bg-dark);
+        flex-direction: column;
+        padding: 6rem 2rem;
+        transition: 0.4s ease;
+        z-index: 1001;
+      }
+
+      .nav-links.active {
+        right: 0;
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-4 {
+        grid-template-columns: 1fr;
+      }
+
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 4rem 0;
+      }
+
+      .hero-title {
+        font-size: 2.5rem;
+      }
+    }
+
+    /* Scroll Reveal */
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(35px);
+      transition: opacity 0.9s cubic-bezier(0.25, 1, 0.3, 1), transform 0.9s cubic-bezier(0.25, 1, 0.3, 1);
+    }
+
+    .scroll-reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <a href="#" class="logo">HOTEL<span>TRANSILVÂNIA</span></a>
+    <div class="menu-btn" id="menuBtn">
+      <i class="fas fa-bars"></i>
+    </div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home">Início</a></li>
+      <li><a href="#about">A Essência</a></li>
+      <li><a href="#experiences">Experiências</a></li>
+      <li><a href="#suites">Suítes</a></li>
+      <li><a href="#reserve">Reservar</a></li>
+      <li><a href="#gallery">Galeria</a></li>
+      <li><a href="#" id="adminBtn">Admin</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="hero-bg">
+      <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=85"
+        alt="Hotel Transilvânia">
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Timeless Sanctuary</div>
+      <h1 class="hero-title">Where Legends <br><span>Find Peace</span></h1>
+      <p class="hero-description">Nestled deep in the Carpathian embrace, an estate of quiet magnificence. Beyond myth,
+        a haven of understated luxury.</p>
+      <a href="#reserve" class="btn">Begin Journey</a>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section style="padding: 3rem 0;">
+    <div class="container">
+      <div class="grid-4">
+        <div class="scroll-reveal">
+          <div class="stat-number">15.2k+</div>
+          <div class="stat-label">Distinguished Guests</div>
         </div>
-        <ul class="navlinks">
-          <li><a href="#overview">Geral</a></li>
-          <li><a href="#cadastro-quarto">Hotéis & Quartos</a></li>
-          <li><a href="#clientes">Clientes</a></li>
-          <li><a href="#reservas">Reservas</a></li>
-          <li><a href="#consultas">Relatórios SQL</a></li>
-        </ul>
-      </nav>
+        <div class="scroll-reveal">
+          <div class="stat-number">4.96</div>
+          <div class="stat-label">Global Rating</div>
+        </div>
+        <div class="scroll-reveal">
+          <div class="stat-number">20+</div>
+          <div class="stat-label">Years of Legacy</div>
+        </div>
+        <div class="scroll-reveal">
+          <div class="stat-number">98%</div>
+          <div class="stat-label">Guest Satisfaction</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      <section id="hero-content">
-        <h1>Pela Hospitalidade e Conforto</h1>
-        <p>
-          Desfrute de acomodações exclusivas, gastronomia requintada e <br />
-          um serviço personalizado no coração da cidade.
-        </p>
-        <a href="#reservas" class="btn">Criar Nova Reserva</a>
-      </section>
-    </header>
+  <!-- About Section -->
+  <section id="about">
+    <div class="container">
+      <div class="grid-2">
+        <div class="scroll-reveal">
+          <span
+            style="font-size:0.7rem; letter-spacing:0.3em; color:var(--accent-gold); text-transform:uppercase;">Legacy
+            of Elegance</span>
+          <h2 style="font-family:var(--font-serif); font-size:3rem; margin:1rem 0;">A castle reborn<br>as a private
+            estate</h2>
+          <p style="color: var(--text-secondary); line-height:1.7;">For two decades, Hotel Transilvânia has stood as a
+            bridge between gothic romance and contemporary refinement. Curated interiors, ancestral forests, and silence
+            that speaks volumes.</p>
+          <a href="#suites" class="btn" style="margin-top: 2rem; display: inline-block;">Explore the estate</a>
+        </div>
+        <div class="scroll-reveal">
+          <img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=1000&q=80"
+            alt="Interior" style="width:100%; height:450px; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <section id="overview" class="stats-grid">
-      <div class="card">
-        <h3>Hotéis Cadastrados</h3>
-        <p id="total-hoteis">-</p>
+  <!-- Experiences Section -->
+  <section class="section-dark" id="experiences">
+    <div class="container">
+      <div class="scroll-reveal" style="text-align:center;">
+        <span
+          style="font-size:0.7rem; letter-spacing:0.3em; color:var(--accent-gold); text-transform:uppercase;">Curated
+          Journeys</span>
+        <h2 class="section-title">Beyond The Ordinary</h2>
       </div>
-      <div class="card">
-        <h3>Total Quartos</h3>
-        <p id="total-quartos">-</p>
+      <div class="grid-3">
+        <div class="card scroll-reveal">
+          <img class="card-image"
+            src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80"
+            alt="Spa">
+          <div class="card-content">
+            <div class="card-category">WELLNESS</div>
+            <h3 class="card-title">Moonlit Rituals</h3>
+            <p style="color: var(--text-secondary);">Thermal waters and ancient salt chambers. A nocturnal spa journey
+              under constellations.</p>
+          </div>
+        </div>
+        <div class="card scroll-reveal">
+          <img class="card-image"
+            src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80"
+            alt="Gastronomy">
+          <div class="card-content">
+            <div class="card-category">GASTRONOMY</div>
+            <h3 class="card-title">The Count's Table</h3>
+            <p style="color: var(--text-secondary);">A 12-course tasting menu honoring Transylvanian heritage, paired
+              with rare local vintages.</p>
+          </div>
+        </div>
+        <div class="card scroll-reveal">
+          <img class="card-image"
+            src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=800&q=80"
+            alt="Culture">
+          <div class="card-content">
+            <div class="card-category">CULTURE</div>
+            <h3 class="card-title">Whispers of History</h3>
+            <p style="color: var(--text-secondary);">Private tour of medieval citadels and hidden chapels guided by
+              local historians.</p>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h3>Clientes Ativos</h3>
-        <p id="total-clientes">-</p>
-      </div>
-      <div class="card">
-        <h3>Faturação Total</h3>
-        <p id="total-faturado">-</p>
-      </div>
-    </section>
+    </div>
+  </section>
 
-    <section
-      id="cadastro-cliente"
-      style="max-width: 600px; margin: 40px auto; padding: 0 20px"
-    >
-      <h2>Cadastrar Novo Cliente</h2>
-      <div class="form-reserva">
-        <form id="form-cliente">
-          <div class="form-group">
-            <label for="nome_cliente">Nome do Cliente:</label>
-            <input
-              type="text"
-              id="nome_cliente_cadastro"
-              name="nome"
-              required
-            />
+  <!-- Suites Section -->
+  <section id="suites">
+    <div class="container">
+      <div class="scroll-reveal" style="text-align:center;">
+        <span
+          style="font-size:0.7rem; letter-spacing:0.3em; color:var(--accent-gold); text-transform:uppercase;">Residences</span>
+        <h2 class="section-title">Silent Luxury, Sublime Views</h2>
+      </div>
+      <div class="grid-3" id="suitesContainer">
+        <div class="card"><img class="card-image"
+            src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80">
+          <div class="card-content">
+            <div class="card-category">Intimate Retreat</div>
+            <h3 class="card-title">Forest Chamber</h3>
+            <p style="color: var(--text-secondary);">Bathed in woodland light, silence woven into every fiber.</p>
           </div>
-          <div class="form-group">
-            <label for="tipo_cliente">Tipo:</label>
-            <select id="tipo_cliente" name="tipo" required>
-              <option value="individual">Individual</option>
-              <option value="organizacao">Organização</option>
-            </select>
+        </div>
+        <div class="card"><img class="card-image"
+            src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80">
+          <div class="card-content">
+            <div class="card-category">Panoramic Suite</div>
+            <h3 class="card-title">Mountain Grand</h3>
+            <p style="color: var(--text-secondary);">Expansive terrace overlooking the Carpathian peaks.</p>
           </div>
-          <div class="form-group">
-            <label for="documento"
-              >NIF (Individual) / NIPC (Organização):</label
-            >
-            <input type="text" id="documento" name="documento" />
+        </div>
+        <div class="card"><img class="card-image"
+            src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80">
+          <div class="card-content">
+            <div class="card-category">Presidential</div>
+            <h3 class="card-title">The Sovereign Suite</h3>
+            <p style="color: var(--text-secondary);">Private library, marble bath, and 24h butler service.</p>
           </div>
-          <button type="submit">Cadastrar Cliente</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESERVE SECTION - COMPLETA E CORRIGIDA -->
+  <section id="reserve" class="section-dark">
+    <div class="container">
+      <div class="scroll-reveal" style="text-align:center; max-width: 800px; margin: 0 auto;">
+        <span style="font-size:0.7rem; letter-spacing:0.3em; color:var(--accent-gold); text-transform:uppercase;">Secure
+          Your Stay</span>
+        <h2 class="section-title" style="font-size: 3rem;">Arrive in<br>Absolute Discretion</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">Complete o formulário abaixo e nossa equipe de
+          concierge entrará em contato em até 2 horas.</p>
+      </div>
+
+      <div class="booking-widget">
+        <form id="reservationForm">
+          <div class="booking-form">
+            <div class="booking-field">
+              <label>Nome Completo *</label>
+              <input type="text" id="reservaNome" placeholder="Seu nome completo" required>
+            </div>
+            <div class="booking-field">
+              <label>E-mail *</label>
+              <input type="email" id="reservaEmail" placeholder="seu@email.com" required>
+            </div>
+            <div class="booking-field">
+              <label>Telefone *</label>
+              <input type="tel" id="reservaTelefone" placeholder="+351 912 345 678" required>
+            </div>
+            <div class="booking-field">
+              <label>Tipo de Suíte *</label>
+              <select id="reservaSuite" required>
+                <option value="">Selecione uma suíte</option>
+                <option value="standard">🌲 Forest Chamber - €120/noite</option>
+                <option value="luxo">⛰️ Mountain Grand - €220/noite</option>
+                <option value="suite">👑 The Sovereign Suite - €450/noite</option>
+              </select>
+            </div>
+            <div class="booking-field">
+              <label>Data de Check-in *</label>
+              <input type="date" id="reservaCheckin" required>
+            </div>
+            <div class="booking-field">
+              <label>Data de Check-out *</label>
+              <input type="date" id="reservaCheckout" required>
+            </div>
+            <div class="booking-field">
+              <label>Número de Hóspedes *</label>
+              <select id="reservaHospedes" required>
+                <option value="1">1 Hóspede</option>
+                <option value="2" selected>2 Hóspedes</option>
+                <option value="3">3 Hóspedes</option>
+                <option value="4">4 Hóspedes</option>
+                <option value="5">5 Hóspedes</option>
+                <option value="6">6 Hóspedes</option>
+              </select>
+            </div>
+            <div class="booking-field">
+              <button type="submit" class="booking-btn" id="submitReservaBtn">Solicitar Reserva ✨</button>
+            </div>
+          </div>
+          <div id="reservaMessage" class="success-message"></div>
+          <div id="reservaError" class="error-message"></div>
         </form>
-        <div
-          id="mensagem-cliente"
-          class="mensagem"
-          style="display: none; margin-top: 20px"
-        ></div>
       </div>
-    </section>
-    <section id="cadastro-quarto">
-      <div>
-        <h2>Registar Novo Quarto</h2>
-        <form id="form-quarto">
-          <div class="form-group">
-            <label for="sigla">Sigla do Hotel:</label>
-            <select id="sigla" name="sigla" required>
-              <option value="SH">Sheraton (SH)</option>
-              <option value="AL">Alfa (AL)</option>
-              <option value="MN">Mundial (MN)</option>
-              <option value="RM">Roma (RM)</option>
-              <option value="MJ">Majestic (MJ)</option>
-              <option value="LS">Lisboa (LS)</option>
-            </select>
-          </div>
+    </div>
+  </section>
 
-          <div class="form-group">
-            <label for="num_quartos">Número do Quarto:</label>
-            <input
-              type="number"
-              id="num_quartos"
-              name="num_quartos"
-              min="1"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="num_camas">Número de Camas:</label>
-            <input
-              type="number"
-              id="num_camas"
-              name="num_camas"
-              min="1"
-              max="5"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="preco">Preço por Noite (€):</label>
-            <input
-              type="number"
-              step="0.01"
-              id="preco"
-              name="preco"
-              min="0"
-              required
-            />
-          </div>
-
-          <button type="submit">Gravar Quarto</button>
-        </form>
-        <div id="mensagem-quarto" class="mensagem" style="display: none"></div>
+  <!-- Gallery Section -->
+  <section id="gallery">
+    <div class="container">
+      <div class="scroll-reveal" style="text-align:center;">
+        <span style="font-size:0.7rem; letter-spacing:0.3em; color:var(--accent-gold); text-transform:uppercase;">Visual
+          Diary</span>
+        <h2 class="section-title">The Estate in Frames</h2>
       </div>
-    </section>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+  </section>
 
-    <section id="clientes">
-      <h2>Lista de Clientes</h2>
-      <table id="tabela-clientes">
-        <thead>
-          <tr>
-            <th>Nº Cliente</th>
-            <th>Nome / Organização</th>
-            <th>Tipo</th>
-            <th>NIF / NIPC</th>
-          </tr>
-        </thead>
-        <tbody id="clientes-body">
-          <tr>
-            <td colspan="4" style="text-align: center">Carregando...</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section id="reservas">
-      <h2>Criar Nova Reserva</h2>
-      <div class="form-reserva">
-        <form id="form-reserva">
-          <div class="form-group">
-            <label for="nome_cliente">Nome do Cliente:</label>
-            <input
-              type="text"
-              id="nome_cliente"
-              name="nome_cliente"
-              required
-              placeholder="Ex: Ana, ISCTE, Pedro..."
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="sigla_hotel">Hotel:</label>
-            <select id="sigla_hotel" name="sigla_hotel" required>
-              <option value="SH">Sheraton (SH)</option>
-              <option value="AL">Alfa (AL)</option>
-              <option value="MN">Mundial (MN)</option>
-              <option value="RM">Roma (RM)</option>
-              <option value="MJ">Majestic (MJ)</option>
-              <option value="LS">Lisboa (LS)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="numero_quarto">Número do Quarto:</label>
-            <input
-              type="number"
-              id="numero_quarto"
-              name="numero_quarto"
-              required
-              placeholder="Ex: 1, 2, 3..."
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="checkin">Data de Check-in:</label>
-            <input type="date" id="checkin" name="checkin" required />
-          </div>
-
-          <div class="form-group">
-            <label for="checkout">Data de Check-out:</label>
-            <input type="date" id="checkout" name="checkout" required />
-          </div>
-
-          <div class="form-group">
-            <label for="num_pessoas">Número de Pessoas:</label>
-            <input
-              type="number"
-              id="num_pessoas"
-              name="num_pessoas"
-              min="1"
-              required
-            />
-          </div>
-
-          <button type="submit">Criar Reserva</button>
-        </form>
-        <div
-          id="mensagem-reserva"
-          class="mensagem"
-          style="display: none; margin-top: 20px"
-        ></div>
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="social-links">
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-x-twitter"></i></a>
       </div>
-    </section>
+      <p>© 2026 HOTEL TRANSILVÂNIA — Private Estate & Sanctuary</p>
+      <p style="margin-top: 0.5rem;">Bran Castle Valley, Transylvania, Romania</p>
+    </div>
+  </footer>
 
-    <section id="consultas">
-      <h2>Consultas Analíticas (Métricas SQL)</h2>
-
-      <div class="report-box">
-        <h3>🏨 Hotéis com maior número de quartos livres</h3>
-        <ul id="quartos-livres-list">
-          <li>Carregando...</li>
-        </ul>
-      </div>
-
-      <div class="report-box">
-        <h3>📊 Número de quartos por hotel</h3>
-        <ul id="quartos-por-hotel-list">
-          <li>Carregando...</li>
-        </ul>
-      </div>
-
-      <div class="report-box">
-        <h3>💰 Faturação por hotel</h3>
-        <ul id="faturacao-hoteis-list">
-          <li>Carregando...</li>
-        </ul>
-      </div>
-
-      <div class="report-box">
-        <h3>👥 Clientes individuais com reservas</h3>
-        <ul id="clientes-reservas-list">
-          <li>Carregando...</li>
-        </ul>
-      </div>
-    </section>
-
-    <footer>
-      <div class="footer-container">
-        <div class="footer-info">
-          <h3>🏨 HotelTransilvânia Admin</h3>
-          <p>
-            Sistema integrado de gestão de alojamento e faturação para hotéis,
-            clientes individuais e corporativos.
-          </p>
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeModal">&times;</span>
+      <h2>Estate Access</h2>
+      <div id="loginError" class="error-message"></div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="username" value="admin" required>
         </div>
-
-        <div class="footer-links">
-          <h4>Acesso Rápido</h4>
-          <ul>
-            <li><a href="#overview">Painel Geral</a></li>
-            <li><a href="#clientes">Gestão de Clientes</a></li>
-            <li><a href="#consultas">Relatórios SQL</a></li>
-          </ul>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" value="admin123" required>
         </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">Access Dashboard</button>
+      </form>
+      <p style="text-align:center; margin-top:1rem; font-size:0.7rem; color:var(--text-tertiary);">🔐 Credenciais: admin
+        / admin123</p>
+    </div>
+  </div>
 
-        <div class="footer-status">
-          <h4>Estado do Servidor</h4>
-          <p>
-            <span class="status-dot connected"></span> BD Hotel ligada via
-            Python/Flask
-          </p>
-          <p><small>Versão do Modelo: 1.0.0</small></p>
-        </div>
-      </div>
+  <script>
+    // ============================================
+    // NAVBAR SCROLL EFFECT
+    // ============================================
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
 
-      <div class="footer-bottom">
-        <p>&copy; 2026 HotelTransilvânia. Todos os direitos reservados.</p>
-        <p><small>Baseado no exercício de Banco de Dados</small></p>
-      </div>
-    </footer>
-  </body>
+    // ============================================
+    // MOBILE MENU
+    // ============================================
+    const menuBtn = document.getElementById('menuBtn');
+    const navLinks = document.getElementById('navLinks');
+    if (menuBtn) {
+      menuBtn.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+      });
+    }
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('active');
+      });
+    });
+
+    // ============================================
+    // SCROLL REVEAL
+    // ============================================
+    const revealElements = document.querySelectorAll('.scroll-reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    revealElements.forEach(el => revealObserver.observe(el));
+
+    // ============================================
+    // GALLERY
+    // ============================================
+    const galleryImages = [
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=800&q=80"
+    ];
+    const galleryGrid = document.getElementById('galleryGrid');
+    if (galleryGrid) {
+      galleryGrid.innerHTML = galleryImages.map(img => `<div class="gallery-item"><img src="${img}" loading="lazy"></div>`).join('');
+    }
+
+    // ============================================
+    // FORMULÁRIO DE RESERVA - CORRIGIDO
+    // ============================================
+    const reservationForm = document.getElementById('reservationForm');
+    if (reservationForm) {
+      // Set default dates
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const formatDate = (date) => date.toISOString().split('T')[0];
+
+      const checkinInput = document.getElementById('reservaCheckin');
+      const checkoutInput = document.getElementById('reservaCheckout');
+
+      if (checkinInput) {
+        checkinInput.value = formatDate(today);
+        checkinInput.min = formatDate(today);
+      }
+      if (checkoutInput) {
+        checkoutInput.value = formatDate(tomorrow);
+        checkoutInput.min = formatDate(tomorrow);
+      }
+
+      // Update checkout min date when checkin changes
+      if (checkinInput && checkoutInput) {
+        checkinInput.addEventListener('change', () => {
+          const minCheckout = new Date(checkinInput.value);
+          minCheckout.setDate(minCheckout.getDate() + 1);
+          checkoutInput.min = formatDate(minCheckout);
+          if (new Date(checkoutInput.value) <= new Date(checkinInput.value)) {
+            checkoutInput.value = formatDate(minCheckout);
+          }
+        });
+      }
+
+      // Submit handler
+      reservationForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Get elements safely
+        const nomeInput = document.getElementById('reservaNome');
+        const emailInput = document.getElementById('reservaEmail');
+        const telefoneInput = document.getElementById('reservaTelefone');
+        const suiteSelect = document.getElementById('reservaSuite');
+        const checkinInputField = document.getElementById('reservaCheckin');
+        const checkoutInputField = document.getElementById('reservaCheckout');
+        const hospedesSelect = document.getElementById('reservaHospedes');
+        const mensagemTextarea = document.getElementById('reservaMensagem');
+
+        // Validate elements exist
+        if (!nomeInput || !emailInput || !telefoneInput || !suiteSelect ||
+          !checkinInputField || !checkoutInputField || !hospedesSelect) {
+          console.error('Elementos do formulário não encontrados');
+          const errorDiv = document.getElementById('reservaError');
+          if (errorDiv) {
+            errorDiv.textContent = '❌ Erro no formulário. Recarregue a página.';
+            errorDiv.style.display = 'block';
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+          }
+          return;
+        }
+
+        const nome = nomeInput.value.trim();
+        const email = emailInput.value.trim();
+        const telefone = telefoneInput.value.trim();
+        const suite = suiteSelect.value;
+        const checkin = checkinInputField.value;
+        const checkout = checkoutInputField.value;
+        const hospedes = hospedesSelect.value;
+        const mensagem = mensagemTextarea ? mensagemTextarea.value : '';
+
+        // Basic validation
+        if (!nome || !email || !telefone || !suite || !checkin || !checkout) {
+          const errorDiv = document.getElementById('reservaError');
+          if (errorDiv) {
+            errorDiv.textContent = '❌ Por favor, preencha todos os campos obrigatórios.';
+            errorDiv.style.display = 'block';
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+          }
+          return;
+        }
+
+        if (new Date(checkin) >= new Date(checkout)) {
+          const errorDiv = document.getElementById('reservaError');
+          if (errorDiv) {
+            errorDiv.textContent = '❌ A data de check-out deve ser posterior à data de check-in.';
+            errorDiv.style.display = 'block';
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+          }
+          return;
+        }
+
+        const submitBtn = document.getElementById('submitReservaBtn');
+        const originalText = submitBtn ? submitBtn.textContent : 'Enviar';
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = '⏳ Enviando...';
+        }
+
+        const formData = new FormData();
+        formData.append('nome', nome);
+        formData.append('email', email);
+        formData.append('telefone', telefone);
+        formData.append('tipo_quarto', suite);
+        formData.append('checkin', checkin);
+        formData.append('checkout', checkout);
+        formData.append('hospedes', hospedes);
+        formData.append('mensagem', mensagem);
+
+        const successDiv = document.getElementById('reservaMessage');
+        const errorDiv = document.getElementById('reservaError');
+
+        if (successDiv) successDiv.style.display = 'none';
+        if (errorDiv) errorDiv.style.display = 'none';
+
+        try {
+          console.log('Enviando reserva para:', '/api/site/reserva');
+
+          const response = await fetch('/api/site/reserva', {
+            method: 'POST',
+            body: formData
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            if (successDiv) {
+              successDiv.textContent = result.message || '✅ Reserva solicitada com sucesso! Nossa equipe entrará em contato em breve.';
+              successDiv.style.display = 'block';
+            }
+            // Clear form
+            if (nomeInput) nomeInput.value = '';
+            if (emailInput) emailInput.value = '';
+            if (telefoneInput) telefoneInput.value = '';
+            if (suiteSelect) suiteSelect.value = '';
+            if (mensagemTextarea) mensagemTextarea.value = '';
+
+            // Reset dates
+            const newToday = new Date();
+            const newTomorrow = new Date(newToday);
+            newTomorrow.setDate(newTomorrow.getDate() + 1);
+            if (checkinInputField) checkinInputField.value = formatDate(newToday);
+            if (checkoutInputField) checkoutInputField.value = formatDate(newTomorrow);
+
+            if (successDiv) successDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          } else {
+            if (errorDiv) {
+              errorDiv.textContent = result.error || '❌ Erro ao processar reserva. Tente novamente.';
+              errorDiv.style.display = 'block';
+            }
+          }
+        } catch (error) {
+          console.error('Erro detalhado:', error);
+          if (errorDiv) {
+            errorDiv.textContent = '❌ Erro ao conectar com o servidor. Verifique sua conexão e tente novamente.';
+            errorDiv.style.display = 'block';
+          }
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+
+          setTimeout(() => {
+            if (successDiv) successDiv.style.display = 'none';
+            if (errorDiv) errorDiv.style.display = 'none';
+          }, 5000);
+        }
+      });
+    }
+
+    // ============================================
+    // MODAL LOGIN
+    // ============================================
+    const adminBtn = document.getElementById('adminBtn');
+    const loginModal = document.getElementById('loginModal');
+    const closeModal = document.getElementById('closeModal');
+
+    if (adminBtn) {
+      adminBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginModal.classList.add('active');
+      });
+    }
+
+    if (closeModal) {
+      closeModal.addEventListener('click', () => {
+        loginModal.classList.remove('active');
+      });
+    }
+
+    window.addEventListener('click', (e) => {
+      if (e.target === loginModal) {
+        loginModal.classList.remove('active');
+      }
+    });
+
+    // ============================================
+    // LOGIN FORM - CORRIGIDO
+    // ============================================
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('loginError');
+
+        errorDiv.style.display = 'none';
+
+        try {
+          // ROTA CORRETA: /login (sem /api)
+          const response = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ username: username, password: password }),
+            credentials: 'include'
+          });
+
+          if (response.redirected) {
+            // Se houve redirecionamento, vai para a página
+            window.location.href = response.url;
+          } else {
+            const result = await response.text();
+            if (response.ok) {
+              window.location.href = '/dashboard';
+            } else {
+              errorDiv.textContent = 'Usuário ou senha inválidos';
+              errorDiv.style.display = 'block';
+            }
+          }
+        } catch (error) {
+          console.error('Erro:', error);
+          errorDiv.textContent = 'Erro ao conectar com o servidor';
+          errorDiv.style.display = 'block';
+        }
+      });
+    }
+
+    // ============================================
+    // SMOOTH SCROLL
+    // ============================================
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        const href = this.getAttribute('href');
+        if (href === '#') return;
+        const target = document.querySelector(href);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+
 </html>

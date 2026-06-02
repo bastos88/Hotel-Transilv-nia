@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="logo">🏨</div>
+        <h2>Bem-vindo à Área Reservada</h2>
+        <p style="color: #94a3b8;">Hotel Transilvânia - Sistema de Gestão</p>
+    </div>
+
+    <div style="background: #1e293b; border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem;">
+        <h3 style="margin-bottom: 1rem;">👤 Informações do Utilizador</h3>
+        <p><strong>Username:</strong> {{ username }}</p>
+        <p><strong>Nome:</strong> {{ nome }}</p>
+    </div>
+
+    <div style="background: #1e293b; border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem;">
+        <h3 style="margin-bottom: 1rem;">📊 Acesso ao Sistema</h3>
+        <p>✅ Sessão ativa e autenticada</p>
+        <p>🔐 Sistema de segurança com hash de passwords</p>
+        <p>🛡️ Proteção contra múltiplas tentativas de login</p>
+    </div>
+
+    <a href="{{ url_for('admin_dashboard') }}" class="btn"
+        style="text-align: center; text-decoration: none; display: block; margin-bottom: 1rem; background: #C6A43F;">🏨
+        Aceder ao Admin do Hotel</a>
+
+    <a href="{{ url_for('logout') }}" class="btn btn-secondary"
+        style="text-align: center; text-decoration: none; display: block;">🚪 Terminar Sessão</a>
+</div>
+{% endblock %}
