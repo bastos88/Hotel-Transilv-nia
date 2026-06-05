@@ -211,9 +211,14 @@
     .form-group select {
       width: 100%;
       padding: 0.5rem 0;
+      color: white;
       border: none;
       border-bottom: 1px solid rgba(0, 0, 0, 0.06);
       background: transparent;
+    }
+
+    .form-group select option {
+      background-color: #1f1d1c;
     }
 
     .form-group input:focus {
@@ -476,14 +481,16 @@
         <div class="form-card">
           <h3>➕ Adicionar Quarto</h3>
           <form id="formQuarto">
-            <div class="form-group"><label>Hotel</label><select id="quartoHotel">
-                <option value="SH">Sheraton</option>
-                <option value="AL">Alfa</option>
-                <option value="MN">Mundial</option>
-                <option value="RM">Roma</option>
-                <option value="MJ">Majestic</option>
-                <option value="LS">Lisboa</option>
-              </select></div>
+            <div class="form-group"><label>Hotel</label>
+              <select id="quartoHotel">
+                <option value="SH">🏙️ Sheraton - São Paulo</option>
+                <option value="AL">🇵🇹 Alfa - Lisboa</option>
+                <option value="MN">🇵🇹 Mundial - Porto</option>
+                <option value="RM">🇧🇷 Roma - Rio de Janeiro</option>
+                <option value="MJ">🇪🇸 Majestic - Barcelona</option>
+                <option value="LS">🇵🇹 Lisboa Plaza - Lisboa</option>
+              </select>
+            </div>
             <div class="form-group"><label>Número</label><input type="number" id="quartoNumero" required></div>
             <div class="form-group"><label>Camas</label><input type="number" id="quartoCamas" required></div>
             <div class="form-group"><label>Preço (€)</label><input type="number" step="0.01" id="quartoPreco" required>

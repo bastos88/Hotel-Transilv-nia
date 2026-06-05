@@ -14,7 +14,10 @@ def init_db():
 
     print("📝 Criando tabelas...")
 
-    cursor.execute("CREATE TABLE hotel (sigla TEXT PRIMARY KEY, designacao TEXT)")
+    # Tabela hotel com cidade adicionada
+    cursor.execute(
+        "CREATE TABLE hotel (sigla TEXT PRIMARY KEY, designacao TEXT, cidade TEXT)"
+    )
     cursor.execute(
         "CREATE TABLE quarto (sigla TEXT, numero INTEGER, num_camas INTEGER, preco REAL, PRIMARY KEY (sigla, numero))"
     )
@@ -37,15 +40,16 @@ def init_db():
 
     print("📝 Inserindo dados...")
 
+    # HOTÉIS COM CIDADES
     hoteis = [
-        ("SH", "Sheraton"),
-        ("AL", "Alfa"),
-        ("MN", "Mundial"),
-        ("RM", "Roma"),
-        ("MJ", "Majestic"),
-        ("LS", "Lisboa"),
+        ("SH", "Sheraton", "São Paulo"),
+        ("AL", "Alfa", "Lisboa"),
+        ("MN", "Mundial", "Porto"),
+        ("RM", "Roma", "Rio de Janeiro"),
+        ("MJ", "Majestic", "Barcelona"),
+        ("LS", "Lisboa Plaza", "Lisboa"),
     ]
-    cursor.executemany("INSERT INTO hotel VALUES (?, ?)", hoteis)
+    cursor.executemany("INSERT INTO hotel VALUES (?, ?, ?)", hoteis)
 
     clientes = [
         (1, "Ana"),
@@ -83,58 +87,68 @@ def init_db():
     ]
     cursor.executemany("INSERT INTO individual VALUES (?, ?)", individuais)
 
+    # Preços atualizados por cidade
     quartos = [
-        ("SH", 1, 2, 10),
-        ("SH", 2, 2, 20),
-        ("SH", 3, 4, 20),
-        ("SH", 4, 1, 10),
-        ("SH", 5, 2, None),
-        ("SH", 6, 3, 15),
-        ("SH", 7, 2, 15),
-        ("SH", 8, 4, None),
-        ("SH", 9, 1, 10),
-        ("SH", 10, 1, 5),
-        ("AL", 1, 2, 10),
-        ("AL", 2, 4, None),
-        ("AL", 3, 4, 20),
-        ("AL", 4, 2, 10),
-        ("AL", 5, 2, None),
-        ("AL", 6, 4, 15),
-        ("AL", 7, 2, 15),
-        ("AL", 8, 4, None),
-        ("MN", 1, 2, 10),
-        ("MN", 2, 2, 20),
-        ("MN", 3, 4, 26),
-        ("MN", 4, 1, 10),
-        ("MN", 5, 3, None),
-        ("MN", 6, 4, 15),
-        ("MN", 7, 2, 15),
-        ("MN", 8, 4, None),
-        ("MN", 9, 1, 10),
-        ("MN", 10, 2, 8),
-        ("RM", 1, 2, 10),
-        ("RM", 2, 3, 25),
-        ("RM", 3, 4, 20),
-        ("RM", 4, 1, 10),
-        ("RM", 5, 2, None),
-        ("RM", 6, 2, 20),
-        ("RM", 7, 2, 15),
-        ("RM", 8, 4, None),
-        ("RM", 9, 1, 10),
-        ("RM", 10, 4, 13),
-        ("MJ", 1, 2, 10),
-        ("MJ", 2, 3, 15),
-        ("MJ", 3, 4, 22),
-        ("MJ", 4, 1, 10),
-        ("LS", 1, 2, 12),
-        ("LS", 2, 2, 20),
-        ("LS", 3, 3, 16),
-        ("LS", 4, 1, 14),
-        ("LS", 5, 1, 20),
-        ("LS", 6, 4, 20),
+        # Sheraton - São Paulo (preços mais altos)
+        ("SH", 1, 2, 120),
+        ("SH", 2, 2, 220),
+        ("SH", 3, 4, 450),
+        ("SH", 4, 1, 80),
+        ("SH", 5, 2, 150),
+        ("SH", 6, 3, 180),
+        ("SH", 7, 2, 160),
+        ("SH", 8, 4, 200),
+        ("SH", 9, 1, 90),
+        ("SH", 10, 1, 70),
+        # Alfa - Lisboa
+        ("AL", 1, 2, 100),
+        ("AL", 2, 4, 180),
+        ("AL", 3, 4, 250),
+        ("AL", 4, 2, 110),
+        ("AL", 5, 2, 130),
+        ("AL", 6, 4, 200),
+        ("AL", 7, 2, 140),
+        ("AL", 8, 4, 220),
+        # Mundial - Porto
+        ("MN", 1, 2, 95),
+        ("MN", 2, 2, 160),
+        ("MN", 3, 4, 280),
+        ("MN", 4, 1, 75),
+        ("MN", 5, 3, 140),
+        ("MN", 6, 4, 190),
+        ("MN", 7, 2, 130),
+        ("MN", 8, 4, 210),
+        ("MN", 9, 1, 80),
+        ("MN", 10, 2, 110),
+        # Roma - Rio de Janeiro
+        ("RM", 1, 2, 110),
+        ("RM", 2, 3, 190),
+        ("RM", 3, 4, 280),
+        ("RM", 4, 1, 85),
+        ("RM", 5, 2, 140),
+        ("RM", 6, 2, 160),
+        ("RM", 7, 2, 135),
+        ("RM", 8, 4, 230),
+        ("RM", 9, 1, 80),
+        ("RM", 10, 4, 200),
+        # Majestic - Barcelona
+        ("MJ", 1, 2, 140),
+        ("MJ", 2, 3, 210),
+        ("MJ", 3, 4, 320),
+        ("MJ", 4, 1, 95),
+        ("MJ", 5, 2, 155),
+        ("MJ", 6, 3, 200),
+        # Lisboa Plaza - Lisboa
+        ("LS", 1, 2, 125),
+        ("LS", 2, 2, 195),
+        ("LS", 3, 3, 300),
+        ("LS", 4, 1, 85),
+        ("LS", 5, 1, 145),
+        ("LS", 6, 4, 280),
     ]
     cursor.executemany("INSERT INTO quarto VALUES (?, ?, ?, ?)", quartos)
 
+    # Resto dos dados permanece igual
     reservas = []
     for i in range(1, 15):
         reservas.append((i, 4, None, None))
@@ -219,7 +233,11 @@ def init_db():
 
     conn.commit()
     conn.close()
+
     print("✅ Banco de dados criado com sucesso!")
+    print("\n📍 Hotéis com cidades:")
+    for sigla, nome, cidade in hoteis:
+        print(f"   - {nome} ({cidade})")
 
 
 if __name__ == "__main__":

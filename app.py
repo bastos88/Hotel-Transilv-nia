@@ -10,7 +10,6 @@ from flask import (
 )
 import sqlite3
 import os
-import hashlib
 import secrets
 from datetime import datetime, date, timedelta
 from functools import wraps
@@ -22,7 +21,6 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 DB_PATH = "hotel.db"
-
 
 # ============================================
 # FUNÇÕES DE BANCO DE DADOS
@@ -42,16 +40,11 @@ def login_required(f):
             if request.headers.get(
                 "X-Requested-With"
             ) == "XMLHttpRequest" or request.path.startswith("/api/"):
-                return jsonify({"error": "Unauthorized", "redirect": "/"}), 401
+                return jsonify({"error": "Unauthorized", "redirect": "/login"}), 401
             return redirect(url_for("login"))
         return f(*args, **kwargs)
 
     return decorated_function
-
-
-# ============================================
-# FUNÇÃO PARA GARANTIR TABELAS EXISTEM
-# ============================================
 
 
 def garantir_tabelas():
@@ -92,11 +85,6 @@ def garantir_tabelas():
     print("✅ Tabelas de segurança verificadas/criadas com sucesso!")
 
 
-# ============================================
-# NÍVEL 3 - BLOQUEIO APÓS 3 TENTATIVAS
-# ============================================
-
-
 def registrar_tentativa_falha(ip, username):
     conn = get_db()
     cursor = conn.cursor()
@@ -114,19 +102,12 @@ def registrar_tentativa_falha(ip, username):
             bloqueado_ate = agora + timedelta(minutes=5)
 
         cursor.execute(
-            """
-            UPDATE tentativas_login 
-            SET tentativas = ?, ultima_tentativa = ?, bloqueado_ate = ?
-            WHERE ip = ? AND username = ?
-        """,
+            "UPDATE tentativas_login SET tentativas = ?, ultima_tentativa = ?, bloqueado_ate = ? WHERE ip = ? AND username = ?",
             (novas_tentativas, agora, bloqueado_ate, ip, username),
         )
     else:
         cursor.execute(
-            """
-            INSERT INTO tentativas_login (ip, username, tentativas, ultima_tentativa)
-            VALUES (?, ?, ?, ?)
-        """,
+            "INSERT INTO tentativas_login (ip, username, tentativas, ultima_tentativa) VALUES (?, ?, ?, ?)",
             (ip, username, 1, agora),
         )
 
@@ -138,10 +119,7 @@ def verificar_bloqueio(ip, username):
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute(
-        """
-        SELECT bloqueado_ate FROM tentativas_login 
-        WHERE ip = ? AND username = ? AND bloqueado_ate > datetime('now')
-    """,
+        "SELECT bloqueado_ate FROM tentativas_login WHERE ip = ? AND username = ? AND bloqueado_ate > datetime('now')",
         (ip, username),
     )
     bloqueado = cursor.fetchone()
@@ -162,25 +140,9 @@ def limpar_tentativas(ip, username):
     conn.close()
 
 
-# ============================================
-# NÍVEL 4 - RECUPERAÇÃO DE PASSWORD
-# ============================================
-
-
 def gerar_token_recuperacao(user_id):
     conn = get_db()
     cursor = conn.cursor()
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS tokens_recuperacao (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            token TEXT UNIQUE,
-            expira_em TIMESTAMP,
-            usado BOOLEAN DEFAULT 0,
-            FOREIGN KEY (user_id) REFERENCES usuarios(id)
-        )
-    """)
 
     token = secrets.token_urlsafe(32)
     expira_em = datetime.now() + timedelta(hours=1)
@@ -386,11 +348,6 @@ def index_public():
     return render_template("index.html")
 
 
-# ============================================
-# NÍVEL 4 - RECUPERAÇÃO DE PASSWORD (ROTAS)
-# ============================================
-
-
 @app.route("/recuperar", methods=["GET", "POST"])
 def recuperar_password():
     if request.method == "POST":
@@ -423,10 +380,7 @@ def redefinir_password(token):
     cursor = conn.cursor()
 
     cursor.execute(
-        """
-        SELECT * FROM tokens_recuperacao 
-        WHERE token = ? AND usado = 0 AND expira_em > datetime('now')
-    """,
+        "SELECT * FROM tokens_recuperacao WHERE token = ? AND usado = 0 AND expira_em > datetime('now')",
         (token,),
     )
     token_rec = cursor.fetchone()
@@ -474,135 +428,90 @@ def redefinir_password(token):
 @app.route("/api/site/reserva", methods=["POST"])
 def site_reserva():
     try:
-        nome = request.form.get("nome")
-        email = request.form.get("email")
-        telefone = request.form.get("telefone")
-        tipo_quarto = request.form.get("tipo_quarto")
-        checkin = request.form.get("checkin")
-        checkout = request.form.get("checkout")
-        hospedes = request.form.get("hospedes")
-        mensagem = request.form.get("mensagem")
+        data = request.get_json()
 
-        if not all([nome, email, telefone, checkin, checkout, hospedes]):
-            return (
-                jsonify(
-                    {
-                        "success": False,
-                        "error": "Todos os campos obrigatórios devem ser preenchidos",
-                    }
-                ),
-                400,
-            )
+        nome = data.get("nome")
+        email = data.get("email")
+        telefone = data.get("telefone")
+        hotel_sigla = data.get("hotel_sigla")
+        tipo_quarto = data.get("tipo_quarto")
+        checkin = data.get("checkin")
+        checkout = data.get("checkout")
+        hospedes = data.get("hospedes")
+        mensagem = data.get("mensagem")
+        valor_total = data.get("valor_total")
 
-        if not tipo_quarto or tipo_quarto not in ["standard", "luxo", "suite"]:
-            return (
-                jsonify(
-                    {"success": False, "error": "Selecione um tipo de suíte válido"}
-                ),
-                400,
-            )
-
-        checkin_date = datetime.strptime(checkin, "%Y-%m-%d").date()
-        checkout_date = datetime.strptime(checkout, "%Y-%m-%d").date()
-
+        # Mapeamento de quartos por hotel e tipo
         quarto_map = {
-            "standard": {
-                "sigla": "SH",
-                "numero": 1,
-                "preco": 120,
-                "nome": "Forest Chamber",
-            },
-            "luxo": {
-                "sigla": "SH",
-                "numero": 2,
-                "preco": 220,
-                "nome": "Mountain Grand",
-            },
-            "suite": {
-                "sigla": "SH",
-                "numero": 3,
-                "preco": 450,
-                "nome": "Sovereign Suite",
-            },
+            "SH": {"standard": 1, "luxo": 2, "suite": 3},
+            "AL": {"standard": 1, "luxo": 2, "suite": 3},
+            "MN": {"standard": 1, "luxo": 2, "suite": 3},
+            "RM": {"standard": 1, "luxo": 2, "suite": 3},
+            "MJ": {"standard": 1, "luxo": 2, "suite": 3},
+            "LS": {"standard": 1, "luxo": 2, "suite": 3},
         }
-        quarto = quarto_map.get(tipo_quarto, quarto_map["standard"])
+
+        numero_quarto = quarto_map[hotel_sigla][tipo_quarto]
 
         conn = get_db()
         cursor = conn.cursor()
 
-        # VERIFICAR DISPONIBILIDADE
+        # Verificar disponibilidade
         cursor.execute(
             """
             SELECT COUNT(*) as total
             FROM reserva_quarto rq
             JOIN reserva r ON rq.num_reserva = r.num_reserva
             WHERE rq.sigla = ? AND rq.numero = ?
-            AND (
-                (r.dia_entrada <= ? AND r.dia_saida >= ?) OR
-                (r.dia_entrada <= ? AND r.dia_saida >= ?) OR
-                (r.dia_entrada >= ? AND r.dia_entrada < ?)
-            )
+            AND r.dia_entrada <= ? AND r.dia_saida >= ?
         """,
-            (
-                quarto["sigla"],
-                quarto["numero"],
-                checkin_date,
-                checkin_date,
-                checkout_date,
-                checkout_date,
-                checkin_date,
-                checkout_date,
-            ),
+            (hotel_sigla, numero_quarto, checkout, checkin),
         )
 
         if cursor.fetchone()["total"] > 0:
             return (
                 jsonify(
-                    {
-                        "success": False,
-                        "error": f"O quarto {quarto['nome']} está ocupado neste período. Por favor, escolha outro quarto ou datas.",
-                        "ocupado": True,
-                    }
+                    {"success": False, "error": "Hotel não disponível para estas datas"}
                 ),
                 409,
             )
 
-        # Verificar se cliente já existe
-        cursor.execute("SELECT num_cliente FROM cliente WHERE nome = ?", (nome,))
+        # Verificar/criar cliente
+        cursor.execute("SELECT num_cliente FROM cliente WHERE email = ?", (email,))
         cliente = cursor.fetchone()
 
         if not cliente:
             cursor.execute("SELECT MAX(num_cliente) as max_id FROM cliente")
             max_id = cursor.fetchone()["max_id"] or 0
-            next_id = max_id + 1
+            cliente_id = max_id + 1
+
             cursor.execute(
-                "INSERT INTO cliente (num_cliente, nome) VALUES (?, ?)", (next_id, nome)
+                "INSERT INTO cliente (num_cliente, nome, email, telefone) VALUES (?, ?, ?, ?)",
+                (cliente_id, nome, email, telefone),
             )
-            cliente_id = next_id
             cursor.execute(
                 "INSERT INTO individual (num_cliente, NIF) VALUES (?, ?)",
-                (next_id, None),
+                (cliente_id, None),
             )
         else:
             cliente_id = cliente["num_cliente"]
 
+        # Criar reserva
         cursor.execute("SELECT MAX(num_reserva) as max_id FROM reserva")
         max_reserva = cursor.fetchone()["max_id"] or 0
         num_reserva = max_reserva + 1
 
         cursor.execute(
             "INSERT INTO reserva (num_reserva, num_cliente, dia_entrada, dia_saida) VALUES (?, ?, ?, ?)",
-            (num_reserva, cliente_id, checkin_date, checkout_date),
+            (num_reserva, cliente_id, checkin, checkout),
         )
 
         cursor.execute(
             "INSERT INTO reserva_quarto (num_reserva, sigla, numero, num_pessoas) VALUES (?, ?, ?, ?)",
-            (num_reserva, quarto["sigla"], quarto["numero"], int(hospedes)),
+            (num_reserva, hotel_sigla, numero_quarto, hospedes),
         )
 
-        num_dias = (checkout_date - checkin_date).days
-        valor_total = quarto["preco"] * num_dias
-
+        # Criar fatura
         cursor.execute("SELECT MAX(num_fatura) as max_id FROM fatura")
         max_fatura = cursor.fetchone()["max_id"] or 0
         num_fatura = max_fatura + 1
@@ -618,11 +527,12 @@ def site_reserva():
         return jsonify(
             {
                 "success": True,
-                "message": f"✨ Reserva #{num_reserva} confirmada! Suíte: {quarto['nome']}, Valor: €{valor_total}.",
+                "message": f"Reserva #{num_reserva} confirmada! Total: €{valor_total}",
             }
         )
 
     except Exception as e:
+        print(f"Erro: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
@@ -662,7 +572,7 @@ def api_clientes():
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT c.num_cliente, c.nome, 
+        SELECT c.num_cliente, c.nome, c.email, c.telefone,
                CASE WHEN i.NIF IS NOT NULL THEN 'Individual' ELSE 'Organização' END as tipo,
                COALESCE(i.NIF, o.NIPC, '-') as documento
         FROM cliente c
@@ -682,10 +592,13 @@ def api_reservas():
     cursor.execute("""
         SELECT r.num_reserva, c.nome as cliente_nome, r.dia_entrada, r.dia_saida,
                julianday(r.dia_saida) - julianday(r.dia_entrada) as num_dias,
-               COALESCE(f.valor, 0) as valor_total
+               COALESCE(f.valor, 0) as valor_total,
+               h.designacao as hotel_nome, h.cidade
         FROM reserva r
         JOIN cliente c ON r.num_cliente = c.num_cliente
         LEFT JOIN fatura f ON r.num_reserva = f.num_reserva
+        LEFT JOIN reserva_quarto rq ON r.num_reserva = rq.num_reserva
+        LEFT JOIN hotel h ON rq.sigla = h.sigla
         ORDER BY r.num_reserva DESC LIMIT 50
     """)
     resultados = [dict(row) for row in cursor.fetchall()]
@@ -698,7 +611,7 @@ def hoteis_quartos():
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT h.designacao, COUNT(q.numero) as numero_quartos
+        SELECT h.designacao, h.cidade, COUNT(q.numero) as numero_quartos
         FROM hotel h LEFT JOIN quarto q ON h.sigla = q.sigla GROUP BY h.sigla
     """)
     resultados = [dict(row) for row in cursor.fetchall()]
@@ -711,7 +624,7 @@ def faturacao_hoteis():
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT h.designacao, COALESCE(SUM(f.valor), 0) as faturacao_total
+        SELECT h.designacao, h.cidade, COALESCE(SUM(f.valor), 0) as faturacao_total
         FROM hotel h
         LEFT JOIN reserva_quarto rq ON h.sigla = rq.sigla
         LEFT JOIN fatura f ON rq.num_reserva = f.num_reserva
@@ -728,13 +641,14 @@ def ocupacao_hoteis():
     cursor = conn.cursor()
     hoje = date.today().isoformat()
 
-    cursor.execute("SELECT sigla, designacao FROM hotel")
+    cursor.execute("SELECT sigla, designacao, cidade FROM hotel")
     hoteis = cursor.fetchall()
 
     resultados = []
     for hotel in hoteis:
         sigla = hotel["sigla"]
         designacao = hotel["designacao"]
+        cidade = hotel["cidade"]
 
         cursor.execute("SELECT COUNT(*) as total FROM quarto WHERE sigla = ?", (sigla,))
         total_quartos = cursor.fetchone()["total"] or 0
@@ -755,6 +669,7 @@ def ocupacao_hoteis():
         resultados.append(
             {
                 "designacao": designacao,
+                "cidade": cidade,
                 "total_quartos": total_quartos,
                 "quartos_ocupados": ocupados,
                 "taxa_ocupacao": taxa,
@@ -789,32 +704,26 @@ def clientes_top():
 def hoteis_completos():
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT sigla, designacao FROM hotel ORDER BY designacao")
+    cursor.execute("SELECT sigla, designacao, cidade FROM hotel ORDER BY designacao")
     hoteis = cursor.fetchall()
 
     resultados = []
     for hotel in hoteis:
         sigla = hotel["sigla"]
         designacao = hotel["designacao"]
+        cidade = hotel["cidade"]
 
         cursor.execute("SELECT COUNT(*) as total FROM quarto WHERE sigla = ?", (sigla,))
         total_quartos = cursor.fetchone()["total"] or 0
 
         cursor.execute(
-            """
-            SELECT COUNT(DISTINCT r.num_reserva) as total 
-            FROM reserva r JOIN reserva_quarto rq ON r.num_reserva = rq.num_reserva WHERE rq.sigla = ?
-        """,
+            "SELECT COUNT(DISTINCT r.num_reserva) as total FROM reserva r JOIN reserva_quarto rq ON r.num_reserva = rq.num_reserva WHERE rq.sigla = ?",
             (sigla,),
         )
         total_reservas = cursor.fetchone()["total"] or 0
 
         cursor.execute(
-            """
-            SELECT COALESCE(SUM(f.valor), 0) as total
-            FROM fatura f JOIN reserva r ON f.num_reserva = r.num_reserva
-            JOIN reserva_quarto rq ON r.num_reserva = rq.num_reserva WHERE rq.sigla = ?
-        """,
+            "SELECT COALESCE(SUM(f.valor), 0) as total FROM fatura f JOIN reserva r ON f.num_reserva = r.num_reserva JOIN reserva_quarto rq ON r.num_reserva = rq.num_reserva WHERE rq.sigla = ?",
             (sigla,),
         )
         faturacao = cursor.fetchone()["total"] or 0
@@ -823,6 +732,7 @@ def hoteis_completos():
             {
                 "sigla": sigla,
                 "designacao": designacao,
+                "cidade": cidade,
                 "total_quartos": total_quartos,
                 "total_reservas": total_reservas,
                 "faturacao_total": faturacao,
@@ -839,7 +749,7 @@ def poo_relatorio_completo():
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT h.designacao, COALESCE(SUM(f.valor), 0) as faturacao
+        SELECT h.designacao, h.cidade, COALESCE(SUM(f.valor), 0) as faturacao
         FROM hotel h LEFT JOIN reserva_quarto rq ON h.sigla = rq.sigla
         LEFT JOIN fatura f ON rq.num_reserva = f.num_reserva GROUP BY h.sigla ORDER BY faturacao DESC LIMIT 1
     """)
@@ -878,6 +788,7 @@ def poo_relatorio_completo():
         {
             "hotel_maior_faturacao": {
                 "nome": hotel_faturacao["designacao"] if hotel_faturacao else "Nenhum",
+                "cidade": hotel_faturacao["cidade"] if hotel_faturacao else "",
                 "faturacao": hotel_faturacao["faturacao"] if hotel_faturacao else 0,
             },
             "reservas_por_organizacao": reservas_org,
@@ -900,6 +811,8 @@ def admin_add_cliente():
         nome = data.get("nome")
         tipo = data.get("tipo")
         documento = data.get("documento")
+        email = data.get("email")
+        telefone = data.get("telefone")
 
         conn = get_db()
         cursor = conn.cursor()
@@ -909,7 +822,8 @@ def admin_add_cliente():
         next_id = max_id + 1
 
         cursor.execute(
-            "INSERT INTO cliente (num_cliente, nome) VALUES (?, ?)", (next_id, nome)
+            "INSERT INTO cliente (num_cliente, nome, email, telefone) VALUES (?, ?, ?, ?)",
+            (next_id, nome, email, telefone),
         )
 
         if tipo == "individual":
@@ -1039,11 +953,15 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    cursor.execute("CREATE TABLE hotel (sigla TEXT PRIMARY KEY, designacao TEXT)")
+    cursor.execute(
+        "CREATE TABLE hotel (sigla TEXT PRIMARY KEY, designacao TEXT, cidade TEXT)"
+    )
     cursor.execute(
         "CREATE TABLE quarto (sigla TEXT, numero INTEGER, num_camas INTEGER, preco REAL, PRIMARY KEY (sigla, numero))"
     )
-    cursor.execute("CREATE TABLE cliente (num_cliente INTEGER PRIMARY KEY, nome TEXT)")
+    cursor.execute(
+        "CREATE TABLE cliente (num_cliente INTEGER PRIMARY KEY, nome TEXT, email TEXT, telefone TEXT)"
+    )
     cursor.execute(
         "CREATE TABLE individual (num_cliente INTEGER PRIMARY KEY, NIF INTEGER)"
     )
@@ -1081,30 +999,30 @@ def init_db():
     print("📝 Inserindo dados...")
 
     hoteis = [
-        ("SH", "Sheraton"),
-        ("AL", "Alfa"),
-        ("MN", "Mundial"),
-        ("RM", "Roma"),
-        ("MJ", "Majestic"),
-        ("LS", "Lisboa"),
+        ("SH", "Sheraton", "São Paulo"),
+        ("AL", "Alfa", "Lisboa"),
+        ("MN", "Mundial", "Porto"),
+        ("RM", "Roma", "Rio de Janeiro"),
+        ("MJ", "Majestic", "Barcelona"),
+        ("LS", "Lisboa Plaza", "Lisboa"),
     ]
-    cursor.executemany("INSERT INTO hotel VALUES (?, ?)", hoteis)
+    cursor.executemany("INSERT INTO hotel VALUES (?, ?, ?)", hoteis)
 
     clientes = [
-        (1, "Ana"),
-        (2, "ISCTE"),
-        (3, "Pedro"),
-        (4, "ONU"),
-        (5, "Luis"),
-        (6, "NASA"),
-        (7, "Carlos"),
-        (8, "CE"),
-        (9, "Sofia"),
-        (10, "TAP"),
-        (11, "Luisa"),
-        (12, "Antonio"),
+        (1, "Ana Silva", "ana@email.com", "912345678"),
+        (2, "ISCTE", "iscte@email.com", "923456789"),
+        (3, "Pedro Santos", "pedro@email.com", "934567890"),
+        (4, "ONU", "onu@email.com", "945678901"),
+        (5, "Luis Costa", "luis@email.com", "956789012"),
+        (6, "NASA", "nasa@email.com", "967890123"),
+        (7, "Carlos Mendes", "carlos@email.com", "978901234"),
+        (8, "CE", "ce@email.com", "989012345"),
+        (9, "Sofia Ferreira", "sofia@email.com", "990123456"),
+        (10, "TAP", "tap@email.com", "901234567"),
+        (11, "Luisa Rocha", "luisa@email.com", "912345678"),
+        (12, "Antonio Neves", "antonio@email.com", "923456789"),
     ]
-    cursor.executemany("INSERT INTO cliente VALUES (?, ?)", clientes)
+    cursor.executemany("INSERT INTO cliente VALUES (?, ?, ?, ?)", clientes)
 
     organizacoes = [
         (2, None, 1020),
@@ -1130,21 +1048,33 @@ def init_db():
         ("SH", 1, 2, 120),
         ("SH", 2, 2, 220),
         ("SH", 3, 4, 450),
+        ("SH", 4, 1, 80),
+        ("SH", 5, 2, 150),
         ("AL", 1, 2, 100),
         ("AL", 2, 3, 180),
         ("AL", 3, 4, 250),
+        ("AL", 4, 2, 110),
+        ("AL", 5, 2, 130),
         ("MN", 1, 2, 130),
         ("MN", 2, 2, 200),
         ("MN", 3, 4, 350),
+        ("MN", 4, 1, 90),
+        ("MN", 5, 3, 170),
         ("RM", 1, 2, 110),
         ("RM", 2, 3, 190),
         ("RM", 3, 4, 280),
+        ("RM", 4, 1, 85),
+        ("RM", 5, 2, 140),
         ("MJ", 1, 2, 140),
         ("MJ", 2, 3, 210),
         ("MJ", 3, 4, 320),
+        ("MJ", 4, 1, 95),
+        ("MJ", 5, 2, 155),
         ("LS", 1, 2, 125),
-        ("LS", 2, 3, 195),
-        ("LS", 3, 4, 300),
+        ("LS", 2, 2, 195),
+        ("LS", 3, 3, 300),
+        ("LS", 4, 1, 85),
+        ("LS", 5, 2, 145),
     ]
     cursor.executemany("INSERT INTO quarto VALUES (?, ?, ?, ?)", quartos)
 
@@ -1164,7 +1094,6 @@ if not os.path.exists(DB_PATH):
     init_db()
 else:
     garantir_tabelas()
-
 
 if __name__ == "__main__":
     print("=" * 50)
